@@ -9,7 +9,7 @@ class SentenceBert(torch.nn.Module):
         self.bert_layer = BertModel.from_pretrained("bert-base-uncased")
         self.cos_sim = torch.nn.CosineSimilarity(dim=1, eps=1e-6)
         self.objective = objective
-        # self.double()
+        self.double()
 
     def forward(self, sent_a, sent_b):
         sent_a_out = self.bert_layer(**sent_a)
