@@ -31,10 +31,8 @@ def main():
             predictions = np.append(predictions, y_pred.cpu().detach().numpy())
             labels = np.append(labels, local_labels.cpu().detach().numpy())
 
-        np.save("predictions.npy", predictions)
-        np.save("labels.npy", labels)
-
         r = stats.spearmanr(predictions, labels)
+        print(f"Spearman correlation: {r.correlation}")
         np.save("results.npy", np.array([r.correlation]))
 
 
