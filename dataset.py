@@ -72,7 +72,7 @@ def read_sts_csv(
     return result
 
 
-def load_data(device, tokenizer):
+def load_data(device, tokenizer, eval=False):
     scaler = MinMaxScaler(feature_range=(-1, 1))
 
     train_df = read_sts_csv("data/sts-train.csv")
@@ -93,10 +93,17 @@ def load_data(device, tokenizer):
         "batch_size": 1,
         "shuffle": True,
     }
-    train_dataset = Dataset(train_df, tokenizer, device)
-    train_generator = torch.utils.data.DataLoader(train_dataset, **params)
+    if eval:
+        test_dataset = Dataset(test_df, tokenizer, device)
+        test_generator = torch.utils.data.DataLoader(test_dataset, **test_params)
 
-    test_dataset = Dataset(test_df, tokenizer, device)
-    test_generator = torch.utils.data.DataLoader(test_dataset, **test_params)
+        return test_generator
+    
+    else:
+        train_dataset = Dataset(train_df, tokenizer, device)
+        train_generator = torch.utils.data.DataLoader(train_dataset, **params)
 
-    return train_generator, test_generator
+        test_dataset = Dataset(test_df, tokenizer, device)
+        test_generator = torch.utils.data.DataLoader(test_dataset, **test_params)
+
+        return train_generator, test_generator
