@@ -1,5 +1,6 @@
 import torch
 import argparse
+import numpy as np
 
 from dataset import load_data
 from model import SentenceBert
@@ -40,6 +41,13 @@ def main():
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
+
+    predictions = np.array([])
+    for local_batch, local_labels in test_generator:
+        sent_a, sent_b = local_batch["sent_a"], local_batch["sent_b"]
+        y_pred = model(sent_a, sent_b)
+        predictions = np.append(predictions, y_pred.numpy)
+    np.save("predictions.npy", predictions)
 
 
 if __name__ == "__main__":
