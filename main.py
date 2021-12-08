@@ -41,7 +41,7 @@ def main():
             loss.backward()
             optimizer.step()
 
-    torch.save(model.state_dict(), "/model")
+    torch.save(model.state_dict(), "model")
 
 
 if __name__ == "__main__":
