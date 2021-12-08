@@ -7,6 +7,7 @@ from scipy import stats
 from dataset import load_data
 from model import SentenceBert
 from transformers import BertTokenizer
+from IPython import embed
 
 
 def main():
@@ -22,7 +23,7 @@ def main():
         model = SentenceBert()
         model.load_state_dict(torch.load(args.model_path))
         model.to(device)
-    
+
         predictions = np.array([])
         labels = np.array([])
         for local_batch, local_labels in tqdm.tqdm(test_generator):
@@ -30,6 +31,8 @@ def main():
             y_pred = model(sent_a, sent_b)
             predictions = np.append(predictions, y_pred.numpy)
             labels = np.append(labels, local_labels.numpy)
+
+        embed()
         np.save("predictions.npy", predictions)
         np.save("labels.npy", labels)
 
