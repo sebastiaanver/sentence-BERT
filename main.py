@@ -43,6 +43,13 @@ def main():
             loss.backward()
             optimizer.step()
 
+    del x_batch
+    del y_batch
+    del train_generator
+    del tokenizer
+
+    torch.cuda.empty_cache()
+
     predictions = np.array([])
     labels = np.array([])
     for local_batch, local_labels in test_generator:
