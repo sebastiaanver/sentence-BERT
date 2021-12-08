@@ -7,7 +7,6 @@ from scipy import stats
 from dataset import load_data
 from model import SentenceBert
 from transformers import BertTokenizer
-from IPython import embed
 
 
 def main():
@@ -32,7 +31,6 @@ def main():
             predictions = np.append(predictions, y_pred.cpu().detach().numpy())
             labels = np.append(labels, local_labels.cpu().detach().numpy())
 
-        embed()
         np.save("predictions.npy", predictions)
         np.save("labels.npy", labels)
 
