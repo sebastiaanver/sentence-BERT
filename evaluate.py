@@ -1,4 +1,5 @@
 import torch
+import tqdm
 import numpy as np
 import argparse
 
@@ -24,7 +25,7 @@ def main():
 
     predictions = np.array([])
     labels = np.array([])
-    for local_batch, local_labels in test_generator:
+    for local_batch, local_labels in tqdm.tqdm(test_generator):
         sent_a, sent_b = local_batch["sent_a"], local_batch["sent_b"]
         y_pred = model(sent_a, sent_b)
         predictions = np.append(predictions, y_pred.numpy)
