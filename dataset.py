@@ -23,6 +23,7 @@ class Dataset(torch.utils.data.Dataset):
             max_length=32,
         )
         self.labels = df["scaled_score"].values
+        self.device = device
 
     def __getitem__(self, index):
         sent_a_input_ids = torch.tensor(
@@ -41,12 +42,12 @@ class Dataset(torch.utils.data.Dataset):
         return (
             {
                 "sent_a": {
-                    "input_ids": sent_a_input_ids,
-                    "attention_mask": sent_a_attention_masks,
+                    "input_ids": sent_a_input_ids.to(self.device),
+                    "attention_mask": sent_a_attention_masks.to(self.device),
                 },
                 "sent_b": {
-                    "input_ids": sent_b_input_ids,
-                    "attention_mask": sent_b_attention_masks,
+                    "input_ids": sent_b_input_ids.to(self.device),
+                    "attention_mask": sent_b_attention_masks.to(self.device),
                 },
             },
             self.labels[index],
