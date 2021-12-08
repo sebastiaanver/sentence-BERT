@@ -90,7 +90,7 @@ def load_data(device, tokenizer):
         "shuffle": True,
     }
     test_params = {
-        "batch_size": 4,
+        "batch_size": 1,
         "shuffle": True,
     }
     train_dataset = Dataset(train_df, tokenizer, device)
