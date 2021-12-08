@@ -14,14 +14,14 @@ class Dataset(torch.utils.data.Dataset):
             padding="max_length",
             truncation=True,
             max_length=32,
-        ).to(device)
+        )
         self.sent_b_tensor = tokenizer(
             list(df["sent_b"]),
             return_tensors="pt",
             padding="max_length",
             truncation=True,
             max_length=32,
-        ).to(device)
+        )
         self.labels = df["scaled_score"].values
 
     def __getitem__(self, index):
