@@ -29,8 +29,8 @@ def main():
         for local_batch, local_labels in tqdm.tqdm(test_generator):
             sent_a, sent_b = local_batch["sent_a"], local_batch["sent_b"]
             y_pred = model(sent_a, sent_b)
-            predictions = np.append(predictions, y_pred.numpy)
-            labels = np.append(labels, local_labels.numpy)
+            predictions = np.append(predictions, y_pred.cpu().detach().numpy())
+            labels = np.append(labels, local_labels.cpu().detach().numpy())
 
         embed()
         np.save("predictions.npy", predictions)
