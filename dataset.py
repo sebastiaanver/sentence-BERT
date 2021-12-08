@@ -89,10 +89,14 @@ def load_data(device, tokenizer):
         "batch_size": 16,
         "shuffle": True,
     }
+    test_params = {
+        "batch_size": 4,
+        "shuffle": True,
+    }
     train_dataset = Dataset(train_df, tokenizer, device)
     train_generator = torch.utils.data.DataLoader(train_dataset, **params)
 
     test_dataset = Dataset(test_df, tokenizer, device)
-    test_generator = torch.utils.data.DataLoader(test_dataset, **params)
+    test_generator = torch.utils.data.DataLoader(test_dataset, **test_params)
 
     return train_generator, test_generator
