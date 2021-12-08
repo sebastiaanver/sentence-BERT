@@ -1,8 +1,6 @@
 import torch
 import argparse
-import numpy as np
 
-from scipy import stats
 from dataset import load_data
 from model import SentenceBert
 from transformers import BertTokenizer
@@ -43,25 +41,7 @@ def main():
             loss.backward()
             optimizer.step()
 
-    del x_batch
-    del y_batch
-    del train_generator
-    del tokenizer
-
-    torch.cuda.empty_cache()
-
-    predictions = np.array([])
-    labels = np.array([])
-    for local_batch, local_labels in test_generator:
-        sent_a, sent_b = local_batch["sent_a"], local_batch["sent_b"]
-        y_pred = model(sent_a, sent_b)
-        predictions = np.append(predictions, y_pred.numpy)
-        labels = np.append(labels, local_labels.numpy)
-    np.save("predictions.npy", predictions)
-    np.save("labels.npy", labels)
-
-    r = stats.spearmanr(predictions, labels)
-    np.save("results.npy", np.array([r.correlation]))
+    torch.save(model.state_dict(), "/model")
 
 
 if __name__ == "__main__":
