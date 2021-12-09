@@ -3,26 +3,27 @@ import pandas as pd
 import numpy as np
 
 from sklearn.preprocessing import MinMaxScaler
+from datasets import load_dataset
 
 
 class Dataset(torch.utils.data.Dataset):
-    def __init__(self, df, tokenizer, device):
+    def __init__(self, df, col_names, tokenizer, device):
 
         self.sent_a_tensor = tokenizer(
-            list(df["sent_a"]),
+            list(df[col_names[0]]),
             return_tensors="pt",
             padding="max_length",
             truncation=True,
             max_length=32,
         )
         self.sent_b_tensor = tokenizer(
-            list(df["sent_b"]),
+            list(df[col_names[1]]),
             return_tensors="pt",
             padding="max_length",
             truncation=True,
             max_length=32,
         )
-        self.labels = df["scaled_score"].values
+        self.labels = df[col_names[2]].values
         self.device = device
 
     def __getitem__(self, index):
@@ -73,38 +74,61 @@ def read_sts_csv(
     return result
 
 
-def load_data(device, tokenizer, eval=False):
-    scaler = MinMaxScaler(feature_range=(-1, 1))
+def load_data(device, tokenizer, objective, eval=False):
+    if objective == "cosine_similarity":
+        col_names = ['sent_a', 'sent_b', 'scaled_score']
+        scaler = MinMaxScaler(feature_range=(-1, 1))
 
-    train_df = read_sts_csv("data/sts-train.csv")
-    test_df = read_sts_csv("data/sts-test.csv")
+        train_df = read_sts_csv("data/sts-train.csv")
+        test_df = read_sts_csv("data/sts-test.csv")
 
-    train_df["scaled_score"] = scaler.fit_transform(
-        np.array(train_df["score"]).reshape(-1, 1)
-    )
-    test_df["scaled_score"] = scaler.fit_transform(
-        np.array(test_df["score"]).reshape(-1, 1)
-    )
+        train_df["scaled_score"] = scaler.fit_transform(
+            np.array(train_df["score"]).reshape(-1, 1)
+        )
+        test_df["scaled_score"] = scaler.fit_transform(
+            np.array(test_df["score"]).reshape(-1, 1)
+        )
 
-    params = {
-        "batch_size": 16,
-        "shuffle": True,
-    }
-    test_params = {
-        "batch_size": 1,
-        "shuffle": True,
-    }
-    if eval:
-        test_dataset = Dataset(test_df, tokenizer, device)
-        test_generator = torch.utils.data.DataLoader(test_dataset, **test_params)
+        params = {
+            "batch_size": 16,
+            "shuffle": True,
+        }
+        test_params = {
+            "batch_size": 1,
+            "shuffle": True,
+        }
+        if eval:
+            test_dataset = Dataset(test_df, tokenizer, device)
+            test_generator = torch.utils.data.DataLoader(test_dataset, **test_params)
 
-        return test_generator
-    
-    else:
-        train_dataset = Dataset(train_df, tokenizer, device)
+            return test_generator
+
+        else:
+            train_dataset = Dataset(train_df, col_names, tokenizer, device)
+            train_generator = torch.utils.data.DataLoader(train_dataset, **params)
+
+            test_dataset = Dataset(test_df, col_names, tokenizer, device)
+            test_generator = torch.utils.data.DataLoader(test_dataset, **test_params)
+
+            return train_generator, test_generator
+    elif objective == "classification":
+        dataset = load_dataset('snli')
+        params = {'batch_size': 16,
+                  'shuffle': True,
+                  }
+        params_test = {'batch_size': 8,
+                       'shuffle': True,
+                       }
+
+        df_train = dataset['train'].to_pandas()
+        df_test = dataset['test'].to_pandas()
+
+        df_train = df_train[df_train['label'] != -1].sample(100)
+        df_test = df_test[df_test['label'] != -1].sample(100)
+
+        train_dataset = Dataset(df_train, ['premise', 'hypothesis', 'label'], tokenizer, device)
+        test_dataset = Dataset(df_test, ['premise', 'hypothesis', 'label'], tokenizer, device)
         train_generator = torch.utils.data.DataLoader(train_dataset, **params)
-
-        test_dataset = Dataset(test_df, tokenizer, device)
-        test_generator = torch.utils.data.DataLoader(test_dataset, **test_params)
+        test_generator = torch.utils.data.DataLoader(test_dataset, **params_test)
 
         return train_generator, test_generator

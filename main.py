@@ -15,17 +15,21 @@ def main():
         "--batch_size", type=int, help="Batch size for training.", default=16
     )
     parser.add_argument("--epochs", type=int, help="Number of train epochs.", default=4)
+    parser.add_argument("--objective", type=str, help="Model training objective.", default="cosine_similarity")
     args = parser.parse_args()
 
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
     tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
 
-    train_generator, test_generator = load_data(device, tokenizer)
+    train_generator, test_generator = load_data(device, tokenizer, objective=args.objective)
 
-    model = SentenceBert()
+    model = SentenceBert(objective=args.objective)
     model.to(device)
 
-    criterion = torch.nn.MSELoss(reduction="sum")
+    if args.objective == "cosine_similarity":
+        criterion = torch.nn.MSELoss(reduction="sum")
+    elif args.objective == "classification":
+        criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=2e-5)
     step = 0
     for epoch in range(args.epochs):
