@@ -121,7 +121,7 @@ def load_data(device, tokenizer, objective, eval=False):
         df_train = dataset['train'].to_pandas()
         df_test = dataset['test'].to_pandas()
 
-        df_train = df_train[df_train['label'] != -1]
+        df_train = df_train[df_train['label'] != -1].sample(100000)
         df_test = df_test[df_test['label'] != -1]
 
         train_dataset = Dataset(df_train, ['premise', 'hypothesis', 'label'], tokenizer, device)
