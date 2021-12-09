@@ -59,7 +59,7 @@ def main():
             y_pred = y_pred.cpu().detach().numpy()
             if args.objective == "classification":
                 y_pred = np.argmax(y_pred, axis=1)
-            predictions = np.append(predictions, y_pred.cpu().detach().numpy())
+            predictions = np.append(predictions, y_pred)
             labels = np.append(labels, local_labels.cpu().detach().numpy())
         if args.objective == "cosine_similarity":
             r = stats.spearmanr(predictions, labels)
