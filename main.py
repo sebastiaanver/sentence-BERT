@@ -1,13 +1,15 @@
-import torch
-import tqdm
-import numpy as np
 import argparse
 
+import numpy as np
+import torch
+import tqdm
 from scipy import stats
+from sklearn.metrics import accuracy_score
+from transformers import BertTokenizer
+
 from dataset import load_data
 from model import SentenceBert
-from transformers import BertTokenizer
-from sklearn.metrics import accuracy_score
+
 
 def main():
     parser = argparse.ArgumentParser(description="Sentence BERT")

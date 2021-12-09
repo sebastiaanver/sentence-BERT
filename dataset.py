@@ -1,14 +1,12 @@
-import torch
-import pandas as pd
 import numpy as np
-
-from sklearn.preprocessing import MinMaxScaler
+import pandas as pd
+import torch
 from datasets import load_dataset
+from sklearn.preprocessing import MinMaxScaler
 
 
 class Dataset(torch.utils.data.Dataset):
     def __init__(self, df, col_names, tokenizer, device):
-
         self.sent_a_tensor = tokenizer(
             list(df[col_names[0]]),
             return_tensors="pt",
@@ -59,7 +57,7 @@ class Dataset(torch.utils.data.Dataset):
 
 
 def read_sts_csv(
-    path, columns=["source", "type", "year", "id", "score", "sent_a", "sent_b"]
+        path, columns=["source", "type", "year", "id", "score", "sent_a", "sent_b"]
 ):
     rows = []
     with open(path, mode="r", encoding="utf-8") as f:
@@ -123,8 +121,8 @@ def load_data(device, tokenizer, objective, eval=False):
         df_train = dataset['train'].to_pandas()
         df_test = dataset['test'].to_pandas()
 
-        df_train = df_train[df_train['label'] != -1].sample(5000)
-        df_test = df_test[df_test['label'] != -1].sample(5000)
+        df_train = df_train[df_train['label'] != -1]
+        df_test = df_test[df_test['label'] != -1]
 
         train_dataset = Dataset(df_train, ['premise', 'hypothesis', 'label'], tokenizer, device)
         test_dataset = Dataset(df_test, ['premise', 'hypothesis', 'label'], tokenizer, device)
