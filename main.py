@@ -7,7 +7,7 @@ from scipy import stats
 from dataset import load_data
 from model import SentenceBert
 from transformers import BertTokenizer
-
+from sklearn.metrics import accuracy_score
 
 def main():
     parser = argparse.ArgumentParser(description="Sentence BERT")
@@ -58,9 +58,12 @@ def main():
             y_pred = model(sent_a, sent_b)
             predictions = np.append(predictions, y_pred.cpu().detach().numpy())
             labels = np.append(labels, local_labels.cpu().detach().numpy())
-
-        r = stats.spearmanr(predictions, labels)
-        print(f"Spearman correlation: {r.correlation}")
+        if args.objective == "cosine_similarity":
+            r = stats.spearmanr(predictions, labels)
+            print(f"Spearman correlation: {r.correlation}")
+        if args.objective == "classification":
+            acc = accuracy_score(predictions,labels)
+            print(f"Accuracy of the model: {acc}")
 
 
 if __name__ == "__main__":
