@@ -13,11 +13,7 @@ from model import SentenceBert
 
 def main():
     parser = argparse.ArgumentParser(description="Sentence BERT")
-    parser.add_argument(
-        "--batch_size", type=int, help="Batch size for training.", default=16
-    )
-    parser.add_argument("--epochs", type=int, help="Number of train epochs.", default=4)
-    parser.add_argument("--objective", type=str, help="Model training objective.", default="cosine_similarity")
+    parser.add_argument("--push_to_hub", type=bool, help="If models should be uploaded to huggingface.", default=False)
     args = parser.parse_args()
 
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
@@ -47,6 +43,8 @@ def main():
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
+    if args.push_to_hub:
+        model.bert_layer.push_to_hub("sentence-BERT-classification")
 
     # Fine-tune on the regression task
     train_generator, test_generator = load_data(device, tokenizer, objective="cosine_similarity")
@@ -70,6 +68,9 @@ def main():
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
+
+    if args.push_to_hub:
+        model.bert_layer.push_to_hub("sentence-BERT-combined")
 
     with torch.no_grad():
         predictions = np.array([])
