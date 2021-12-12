@@ -78,17 +78,11 @@ def main():
             sent_a, sent_b = local_batch["sent_a"], local_batch["sent_b"]
             y_pred = model(sent_a, sent_b)
             y_pred = y_pred.cpu().detach().numpy()
-            if args.objective == "classification":
-                y_pred = np.argmax(y_pred, axis=1)
+
             predictions = np.append(predictions, y_pred)
             labels = np.append(labels, local_labels.cpu().detach().numpy())
-        if args.objective == "cosine_similarity":
-            r = stats.spearmanr(predictions, labels)
-            print(f"Spearman correlation: {r.correlation}")
-        if args.objective == "classification":
-            print(predictions.shape)
-            acc = accuracy_score(predictions, labels)
-            print(f"Accuracy of the model: {acc}")
+        r = stats.spearmanr(predictions, labels)
+        print(f"Spearman correlation: {r.correlation}")
 
 
 if __name__ == "__main__":
