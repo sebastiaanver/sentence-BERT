@@ -18,7 +18,14 @@ def main():
     )
     parser.add_argument("--epochs", type=int, help="Number of train epochs.", default=4)
     parser.add_argument("--objective", type=str, help="Model training objective.", default="cosine_similarity")
+    parser.add_argument("--push_to_hub", type=bool,
+                        help="If models should be uploaded to huggingface.", default=False)
     args = parser.parse_args()
+
+    if args.objective == "classification":
+        hf_name = "sentence-BERT-classification"
+    elif args.objective == "cosine_similarity":
+        hf_name = "sentence-BERT-regression"
 
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
     tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
@@ -50,7 +57,8 @@ def main():
             loss.backward()
             optimizer.step()
 
-    torch.save(model.state_dict(), "model")
+    if args.push_to_hub:
+        model.bert_layer.push_to_hub(hf_name)
 
     with torch.no_grad():
         predictions = np.array([])
