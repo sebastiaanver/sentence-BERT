@@ -4,9 +4,9 @@ from transformers import BertModel
 
 
 class SentenceBert(torch.nn.Module):
-    def __init__(self, objective="cosine_similarity"):
+    def __init__(self, objective="cosine_similarity", bert_model=None):
         super(SentenceBert, self).__init__()
-        self.bert_layer = BertModel.from_pretrained('bert-base-uncased')
+        self.bert_layer = bert_model if bert_model else BertModel.from_pretrained('bert-base-uncased')
         self.objective = objective
         if self.objective == "cosine_similarity":
             self.cos_sim = torch.nn.CosineSimilarity(dim=1, eps=1e-6)
