@@ -27,6 +27,8 @@ def main():
     elif args.objective == "cosine_similarity":
         hf_name = "sentence-BERT-regression"
 
+    print(f"Using hf_name: {hf_name}")
+
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
     tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
 
@@ -58,7 +60,7 @@ def main():
             optimizer.step()
 
     if args.push_to_hub:
-        model.bert_layer.push_to_hub(hf_name)
+        model.bert_layer.push_to_hub(hf_name, use_temp_dir=True)
 
     with torch.no_grad():
         predictions = np.array([])
