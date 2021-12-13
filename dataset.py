@@ -90,7 +90,6 @@ def load_data(device, tokenizer, objective, eval=False):
         train_df["scaled_score"] = train_df["score"].apply(lambda x: (float(x) / 2.5) - 1)
         test_df["scaled_score"] = test_df["score"].apply(lambda x: (float(x) / 2.5) - 1)
 
-
         params = {
             "batch_size": 16,
             "shuffle": True,
@@ -100,7 +99,7 @@ def load_data(device, tokenizer, objective, eval=False):
             "shuffle": True,
         }
         if eval:
-            test_dataset = Dataset(test_df, tokenizer, device)
+            test_dataset = Dataset(test_df, col_names, tokenizer, device)
             test_generator = torch.utils.data.DataLoader(test_dataset, **test_params)
 
             return test_generator

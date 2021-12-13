@@ -38,7 +38,7 @@ def main():
     model.to(device)
 
     if args.objective == "cosine_similarity":
-        criterion = torch.nn.MSELoss(reduction="sum")
+        criterion = torch.nn.MSELoss(reduction="mean")
     elif args.objective == "classification":
         criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=2e-5)
