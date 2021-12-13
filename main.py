@@ -42,6 +42,7 @@ def main():
     elif args.objective == "classification":
         criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=2e-5)
+    scheduler = torch.optim.lr_scheduler.LinearLR(optimizer, start_factor=0.0, total_iters=40)
     step = 0
     for epoch in range(args.epochs):
         for x_batch, y_batch in train_generator:
@@ -58,7 +59,8 @@ def main():
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-            
+            scheduler.step()
+
             if step % 500 == 0:
 
                 with torch.no_grad():
