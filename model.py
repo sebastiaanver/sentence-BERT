@@ -8,6 +8,7 @@ class SentenceBert(torch.nn.Module):
         super(SentenceBert, self).__init__()
         self.bert_layer = bert_model if bert_model else BertModel.from_pretrained('bert-base-uncased')
         self.objective = objective
+        self.pooling = pooling
         if self.objective == "cosine_similarity":
             self.cos_sim = torch.nn.CosineSimilarity(dim=1, eps=1e-6)
         elif self.objective == "classification":
