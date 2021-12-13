@@ -1,12 +1,13 @@
 import torch
 
-from transformers import BertModel
+from transformers import BertModel, BertConfig
 
 
 class SentenceBert(torch.nn.Module):
     def __init__(self, objective="cosine_similarity", pooling="mean", bert_model=None):
         super(SentenceBert, self).__init__()
-        self.bert_layer = bert_model if bert_model else BertModel.from_pretrained('bert-base-uncased')
+        config = BertConfig.from_pretrained('bert-base-uncased', output_hidden_states=True)
+        self.bert_layer = bert_model if bert_model else BertModel.from_pretrained('bert-base-uncased', config=config)
         self.objective = objective
         self.pooling = pooling
         if self.objective == "cosine_similarity":
@@ -19,13 +20,14 @@ class SentenceBert(torch.nn.Module):
     def forward(self, sent_a, sent_b):
         sent_a_out = self.bert_layer(**sent_a)
         if self.pooling == "mean":
-            sent_a_pooled = torch.mean(sent_a_out.last_hidden_state, dim=1)
+
+            sent_a_pooled = torch.mean(sent_a_out.hidden_states[-2], dim=1)
         else:
             sent_a_pooled = sent_a_out.pooler_output
 
         sent_b_out = self.bert_layer(**sent_b)
         if self.pooling == "mean":
-            sent_b_pooled = torch.mean(sent_b_out.last_hidden_state, dim=1)
+            sent_b_pooled = torch.mean(sent_b_out.hidden_states[-2], dim=1)
         else:
             sent_b_pooled = sent_b_out.pooler_output
 
