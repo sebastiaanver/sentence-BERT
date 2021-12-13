@@ -12,14 +12,14 @@ class Dataset(torch.utils.data.Dataset):
             return_tensors="pt",
             padding="max_length",
             truncation=True,
-            max_length=32,
+            max_length=64,
         )
         self.sent_b_tensor = tokenizer(
             list(df[col_names[1]]),
             return_tensors="pt",
             padding="max_length",
             truncation=True,
-            max_length=32,
+            max_length=64,
         )
         self.labels = df[col_names[2]].values
         self.device = device
