@@ -62,7 +62,7 @@ def main():
             optimizer.step()
             scheduler.step()
 
-            if step % 500 == 0:
+            if step % 100 == 0:
                 print(f"Current lr: {scheduler.get_last_lr()}")
                 with torch.no_grad():
                     predictions = np.array([])
