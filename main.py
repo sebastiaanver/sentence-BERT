@@ -51,8 +51,6 @@ def main():
             sent_a, sent_b = x_batch["sent_a"], x_batch["sent_b"]
 
             y_pred = model(sent_a, sent_b)
-            print(y_pred[:10])
-            print(torch.tensor(y_batch).to(device)[:10])
             loss = criterion(y_pred, torch.tensor(y_batch).to(device))
 
             if step % 100 == 0:
