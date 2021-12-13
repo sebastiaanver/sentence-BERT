@@ -80,12 +80,16 @@ def load_data(device, tokenizer, objective, eval=False):
         train_df = read_sts_csv("data/sts-train.csv")
         test_df = read_sts_csv("data/sts-test.csv")
 
-        train_df["scaled_score"] = scaler.fit_transform(
-            np.array(train_df["score"]).reshape(-1, 1)
-        )
-        test_df["scaled_score"] = scaler.fit_transform(
-            np.array(test_df["score"]).reshape(-1, 1)
-        )
+        # train_df["scaled_score"] = scaler.fit_transform(
+        #     np.array(train_df["score"]).reshape(-1, 1)
+        # )
+        # test_df["scaled_score"] = scaler.fit_transform(
+        #     np.array(test_df["score"]).reshape(-1, 1)
+        # )
+
+        train_df["scaled_score"] = train_df["scaled_score"].apply(lambda x: (x/2.5) - 1)
+        test_df["scaled_score"] = test_df["scaled_score"].apply(lambda x: (x / 2.5) - 1)
+
 
         params = {
             "batch_size": 16,
