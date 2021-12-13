@@ -92,7 +92,7 @@ def load_data(device, tokenizer, objective, eval=False):
             "shuffle": True,
         }
         test_params = {
-            "batch_size": 1,
+            "batch_size": 16,
             "shuffle": True,
         }
         if eval:
@@ -114,7 +114,7 @@ def load_data(device, tokenizer, objective, eval=False):
         params = {'batch_size': 16,
                   'shuffle': True,
                   }
-        params_test = {'batch_size': 8,
+        params_test = {'batch_size': 16,
                        'shuffle': True,
                        }
 

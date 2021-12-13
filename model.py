@@ -25,10 +25,29 @@ class SentenceBert(torch.nn.Module):
         if self.objective == "cosine_similarity":
             return self.cos_sim(sent_a_pooled, sent_b_pooled)
         elif self.objective == "classification":
-            subs = torch.sub(sent_a_pooled, sent_b_pooled)
+            subs = torch.abs(torch.sub(sent_a_pooled, sent_b_pooled))
             concat = torch.cat((sent_a_pooled, sent_b_pooled, subs), dim=1)
             logits = self.weights(concat)
             return self.softmax(logits)
         else:
             print("Objective not valid")
         return None
+
+
+class SentenceBertInference:
+    def __init__(self, tokenizer, bert_model):
+        self.tokenizer = tokenizer
+        self.bert_model = bert_model
+
+    def predict(self, sentence):
+        sentence = self.tokenizer(
+            sentence,
+            return_tensors="pt",
+            padding="max_length",
+            truncation=True,
+            max_length=32,
+        )
+        sentence = self.bert_model(**sentence)
+        sentence_embedding = torch.mean(sentence.last_hidden_state, dim=1)
+
+        return sentence_embedding
