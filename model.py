@@ -21,13 +21,13 @@ class SentenceBert(torch.nn.Module):
         sent_a_out = self.bert_layer(**sent_a)
         if self.pooling == "mean":
 
-            sent_a_pooled = torch.mean(sent_a_out.hidden_states[-2], dim=1)
+            sent_a_pooled = torch.mean(sent_a_out.hidden_states[-1], dim=1)
         else:
             sent_a_pooled = sent_a_out.pooler_output
 
         sent_b_out = self.bert_layer(**sent_b)
         if self.pooling == "mean":
-            sent_b_pooled = torch.mean(sent_b_out.hidden_states[-2], dim=1)
+            sent_b_pooled = torch.mean(sent_b_out.hidden_states[-1], dim=1)
         else:
             sent_b_pooled = sent_b_out.pooler_output
 
