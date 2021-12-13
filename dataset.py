@@ -87,8 +87,8 @@ def load_data(device, tokenizer, objective, eval=False):
         #     np.array(test_df["score"]).reshape(-1, 1)
         # )
 
-        train_df["scaled_score"] = train_df["score"].apply(lambda x: (x/2.5) - 1)
-        test_df["scaled_score"] = test_df["score"].apply(lambda x: (x / 2.5) - 1)
+        train_df["scaled_score"] = train_df["score"].apply(lambda x: (float(x) / 2.5) - 1)
+        test_df["scaled_score"] = test_df["score"].apply(lambda x: (float(x) / 2.5) - 1)
 
 
         params = {
