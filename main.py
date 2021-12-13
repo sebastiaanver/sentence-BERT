@@ -58,25 +58,27 @@ def main():
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
+            
+            if step % 500 == 0:
 
-        with torch.no_grad():
-            predictions = np.array([])
-            labels = np.array([])
-            for local_batch, local_labels in tqdm.tqdm(test_generator):
-                sent_a, sent_b = local_batch["sent_a"], local_batch["sent_b"]
-                y_pred = model(sent_a, sent_b)
-                y_pred = y_pred.cpu().detach().numpy()
-                if args.objective == "classification":
-                    y_pred = np.argmax(y_pred, axis=1)
-                predictions = np.append(predictions, y_pred)
-                labels = np.append(labels, local_labels.cpu().detach().numpy())
-            if args.objective == "cosine_similarity":
-                r = stats.spearmanr(predictions, labels)
-                print(f"Spearman correlation: {r.correlation}")
-            if args.objective == "classification":
-                print(predictions.shape)
-                acc = accuracy_score(predictions, labels)
-                print(f"Accuracy of the model: {acc}")
+                with torch.no_grad():
+                    predictions = np.array([])
+                    labels = np.array([])
+                    for local_batch, local_labels in tqdm.tqdm(test_generator):
+                        sent_a, sent_b = local_batch["sent_a"], local_batch["sent_b"]
+                        y_pred = model(sent_a, sent_b)
+                        y_pred = y_pred.cpu().detach().numpy()
+                        if args.objective == "classification":
+                            y_pred = np.argmax(y_pred, axis=1)
+                        predictions = np.append(predictions, y_pred)
+                        labels = np.append(labels, local_labels.cpu().detach().numpy())
+                    if args.objective == "cosine_similarity":
+                        r = stats.spearmanr(predictions, labels)
+                        print(f"Spearman correlation: {r.correlation}")
+                    if args.objective == "classification":
+                        print(predictions.shape)
+                        acc = accuracy_score(predictions, labels)
+                        print(f"Accuracy of the model: {acc}")
 
     if args.push_to_hub:
         model.bert_layer.push_to_hub(hf_name, use_temp_dir=True)
