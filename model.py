@@ -20,7 +20,6 @@ class SentenceBert(torch.nn.Module):
     def forward(self, sent_a, sent_b):
         sent_a_out = self.bert_layer(**sent_a)
         if self.pooling == "mean":
-
             sent_a_pooled = torch.mean(sent_a_out.last_hidden_state, dim=1)
         else:
             sent_a_pooled = sent_a_out.pooler_output

@@ -75,17 +75,9 @@ def read_sts_csv(
 def load_data(device, tokenizer, objective, eval=False):
     if objective == "cosine_similarity":
         col_names = ['sent_a', 'sent_b', 'scaled_score']
-        scaler = MinMaxScaler(feature_range=(-1, 1))
 
         train_df = read_sts_csv("data/sts-train.csv")
         test_df = read_sts_csv("data/sts-test.csv")
-
-        # train_df["scaled_score"] = scaler.fit_transform(
-        #     np.array(train_df["score"]).reshape(-1, 1)
-        # )
-        # test_df["scaled_score"] = scaler.fit_transform(
-        #     np.array(test_df["score"]).reshape(-1, 1)
-        # )
 
         train_df["scaled_score"] = train_df["score"].apply(lambda x: (float(x) / 2.5) - 1)
         test_df["scaled_score"] = test_df["score"].apply(lambda x: (float(x) / 2.5) - 1)

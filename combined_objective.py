@@ -20,7 +20,7 @@ def main():
     tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
 
     # Fine-tune on the classification task
-    train_generator, _ = load_data(device, tokenizer, objective="classification")
+    train_generator, test_generator = load_data(device, tokenizer, objective="classification")
 
     model = SentenceBert(objective="classification")
     model.to(device)
@@ -43,6 +43,18 @@ def main():
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
+    with torch.no_grad():
+        predictions = np.array([])
+        labels = np.array([])
+        for local_batch, local_labels in tqdm.tqdm(test_generator):
+            sent_a, sent_b = local_batch["sent_a"], local_batch["sent_b"]
+            y_pred = model(sent_a, sent_b)
+            y_pred = y_pred.cpu().detach().numpy()
+
+            predictions = np.append(predictions, y_pred)
+            labels = np.append(labels, local_labels.cpu().detach().numpy())
+        r = stats.spearmanr(predictions, labels)
+        print(f"Spearman correlation: {r.correlation}")
     if args.push_to_hub:
         model.bert_layer.push_to_hub("sentence-BERT-classification")
 
