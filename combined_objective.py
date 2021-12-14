@@ -27,6 +27,7 @@ def main():
 
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=2e-5)
+    scheduler = torch.optim.lr_scheduler.LinearLR(optimizer, start_factor=1e-8, total_iters=500)
     step = 0
     for epoch in range(1):
         for x_batch, y_batch in train_generator:
@@ -43,24 +44,27 @@ def main():
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-    with torch.no_grad():
-        predictions = np.array([])
-        labels = np.array([])
-        for local_batch, local_labels in tqdm.tqdm(test_generator):
-            sent_a, sent_b = local_batch["sent_a"], local_batch["sent_b"]
-            y_pred = model(sent_a, sent_b)
-            y_pred = y_pred.cpu().detach().numpy()
+            scheduler.step()
 
-            predictions = np.append(predictions, y_pred)
-            labels = np.append(labels, local_labels.cpu().detach().numpy())
-        r = stats.spearmanr(predictions, labels)
-        print(f"Spearman correlation: {r.correlation}")
+            if step % 300 == 0:
+                with torch.no_grad():
+                    predictions = np.array([])
+                    labels = np.array([])
+                    for local_batch, local_labels in tqdm.tqdm(test_generator):
+                        sent_a, sent_b = local_batch["sent_a"], local_batch["sent_b"]
+                        y_pred = model(sent_a, sent_b)
+                        y_pred = y_pred.cpu().detach().numpy()
+
+                        predictions = np.append(predictions, y_pred)
+                        labels = np.append(labels, local_labels.cpu().detach().numpy())
+                    r = stats.spearmanr(predictions, labels)
+                    print(f"Spearman correlation: {r.correlation}")
 
     # Fine-tune on the regression task
     train_generator, test_generator = load_data(device, tokenizer, objective="cosine_similarity")
     model = SentenceBert(objective="cosine_similarity", bert_model=model.bert_layer)
 
-    criterion = torch.nn.MSELoss(reduction="sum")
+    criterion = torch.nn.MSELoss(reduction="mean")
     optimizer = torch.optim.Adam(model.parameters(), lr=2e-5)
     step = 0
     for epoch in range(4):
