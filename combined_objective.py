@@ -57,8 +57,8 @@ def main():
 
                         predictions = np.append(predictions, y_pred)
                         labels = np.append(labels, local_labels.cpu().detach().numpy())
-                    r = stats.spearmanr(predictions, labels)
-                    print(f"Spearman correlation: {r.correlation}")
+                    acc = accuracy_score(predictions, labels)
+                    print(f"Accuracy of the model: {acc}")
 
     # Fine-tune on the regression task
     train_generator, test_generator = load_data(device, tokenizer, objective="cosine_similarity")
