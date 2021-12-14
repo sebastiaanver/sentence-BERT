@@ -66,6 +66,7 @@ def main():
 
     criterion = torch.nn.MSELoss(reduction="mean")
     optimizer = torch.optim.Adam(model.parameters(), lr=2e-5)
+    scheduler = torch.optim.lr_scheduler.LinearLR(optimizer, start_factor=1e-8, total_iters=150)
     step = 0
     for epoch in range(4):
         for x_batch, y_batch in train_generator:
@@ -82,6 +83,7 @@ def main():
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
+            scheduler.step()
 
     if args.push_to_hub:
         model.bert_layer.push_to_hub("sentence-BERT-combined")
