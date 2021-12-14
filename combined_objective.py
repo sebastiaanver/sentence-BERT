@@ -55,8 +55,6 @@ def main():
             labels = np.append(labels, local_labels.cpu().detach().numpy())
         r = stats.spearmanr(predictions, labels)
         print(f"Spearman correlation: {r.correlation}")
-    if args.push_to_hub:
-        model.bert_layer.push_to_hub("sentence-BERT-classification")
 
     # Fine-tune on the regression task
     train_generator, test_generator = load_data(device, tokenizer, objective="cosine_similarity")
