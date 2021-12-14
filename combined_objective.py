@@ -54,7 +54,7 @@ def main():
                         sent_a, sent_b = local_batch["sent_a"], local_batch["sent_b"]
                         y_pred = model(sent_a, sent_b)
                         y_pred = y_pred.cpu().detach().numpy()
-
+                        y_pred = np.argmax(y_pred, axis=1)
                         predictions = np.append(predictions, y_pred)
                         labels = np.append(labels, local_labels.cpu().detach().numpy())
                     acc = accuracy_score(predictions, labels)
