@@ -14,9 +14,12 @@ vectors = np.load("data/vectors.npy", allow_pickle=True)
 tree = spatial.KDTree(data=vectors)
 
 # Init model
-tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-bert_model = BertModel.from_pretrained('sebastiaan/sentence-BERT-regression')
-model = SentenceBertInference(tokenizer, bert_model)
+@st.cache
+def load_tokenizer():
+    return BertTokenizer.from_pretrained('bert-base-uncased')
+
+tokenizer = load_tokenizer()
+
 
 # Results from experiments
 experiments = ["Classification task", "Regression task", "Combined task"]
@@ -114,19 +117,39 @@ st.code(
 st.write("Evaluation on STS Benchmark")
 st.write("The metric used to compare two sets of rankings is the Spearmean Correlation")
 
-st.title('Experiments')
+st.title('Experiments 🧪')
 st.write("We have trained sentence-BERT by fine-tuning the pre-trained BERT model an various tasks and compared performance below. For the combined task we first fine-tuned on the classifcation task before fine-tuning on the regression task.")
 st.table(df)
 
-st.title('Search engine')
-model_to_use = st.selectbox('Select model to use:', experiments)
-query = st.text_input('Search query')
+st.title('Search engine 🔍')
 
+with st.form(key='my_form'):
+    model_to_use = st.selectbox('Select model to use:', experiments)
+    query = st.text_input('Search query')
+    k = st.slider("Number of results (k)", min_value=1, max_value=20)
+    submit_button = st.form_submit_button(label='Submit')
+    st.warning('Note: the model will be loaded from huggingface and might take a few minutes.')
+
+
+@st.cache
+def load_model(tokenizer, task_name):
+    if task_name == "Classification task":
+        bert_model = BertModel.from_pretrained('sebastiaan/sentence-BERT-classification')
+    elif task_name == "Regression task":
+        bert_model = BertModel.from_pretrained('sebastiaan/sentence-BERT-regression')
+    else:
+        bert_model = BertModel.from_pretrained('sebastiaan/sentence-BERT-combined')
+    return SentenceBertInference(tokenizer, bert_model)
+
+
+
+model = load_model(tokenizer, model_to_use)
 query_vec = model.predict(query).cpu().detach().numpy()
-res = tree.query(query_vec, k=5)
+res = tree.query(query_vec, k=k)
 
-st.text(f"Results for model: '{model_to_use}' and query: '{query}'")
+st.markdown(f"Results for model: **{model_to_use}** and query: **'{query}'**")
 
-for i in res[1]:
-    st.text(sentences[i])
+
+st.text("\n".join([sentences[i] for i in res[1][0]]))
+
 
