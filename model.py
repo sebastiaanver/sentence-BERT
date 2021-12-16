@@ -57,7 +57,7 @@ class SentenceBertInference:
             truncation=True,
             max_length=128,
         )
-        sentence_outputs = self.bert_model(**sentence_inputs)
+        sentence_outputs = self.bert_model(**sentence_inputs, return_dict=False)
         sentence_embedding = pooling_layer(sentence_inputs, sentence_outputs)
 
         return sentence_embedding
