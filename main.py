@@ -20,7 +20,6 @@ def main():
     parser.add_argument("--objective", type=str, help="Model training objective.", default="cosine_similarity")
     parser.add_argument("--push_to_hub", type=bool,
                         help="If models should be uploaded to huggingface.", default=False)
-    parser.add_argument("--pooling", type=str, default="mean")
     args = parser.parse_args()
 
     if args.objective == "classification":
@@ -35,7 +34,7 @@ def main():
 
     train_generator, test_generator = load_data(device, tokenizer, objective=args.objective)
 
-    model = SentenceBert(objective=args.objective, pooling=args.pooling)
+    model = SentenceBert(objective=args.objective)
     model.to(device)
 
     if args.objective == "cosine_similarity":
@@ -43,7 +42,6 @@ def main():
     elif args.objective == "classification":
         criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=2e-5)
-    scheduler = torch.optim.lr_scheduler.LinearLR(optimizer, start_factor=1e-8, total_iters=140)
     step = 0
     for epoch in range(args.epochs):
         for x_batch, y_batch in train_generator:
@@ -60,10 +58,8 @@ def main():
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-            scheduler.step()
 
             if step % 300 == 0:
-                print(f"Current lr: {scheduler.get_last_lr()}")
                 with torch.no_grad():
                     predictions = np.array([])
                     labels = np.array([])
