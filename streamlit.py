@@ -126,7 +126,7 @@ st.title('Search engine 🔍')
 with st.form(key='my_form'):
     model_to_use = st.selectbox('Select model to use:', experiments)
     query = st.text_input('Search query')
-    k = st.slider("Number of results (k)", min_value=1, max_value=20)
+    k = st.slider("Number of results (k)", min_value=1, max_value=20, value=4)
     submit_button = st.form_submit_button(label='Submit')
     st.warning('Note: the model will be loaded from huggingface and might take a few minutes.')
 

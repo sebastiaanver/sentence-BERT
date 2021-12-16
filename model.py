@@ -17,16 +17,28 @@ class SentenceBert(torch.nn.Module):
             self.softmax = torch.nn.Softmax()
         self.double()
 
+    @staticmethod
+    def pooling_layer(inputs, outputs):
+        token_embeddings = outputs[0]
+        attention_mask = inputs["attention_mask"]
+        input_mask_expanded = attention_mask.unsqueeze(-1).expand(token_embeddings.size()).float()
+        sum_embeddings = torch.sum(token_embeddings * input_mask_expanded, 1)
+        sum_mask = input_mask_expanded.sum(1)
+        pooled = sum_embeddings / sum_mask
+        return pooled
+
     def forward(self, sent_a, sent_b):
         sent_a_out = self.bert_layer(**sent_a)
         if self.pooling == "mean":
-            sent_a_pooled = torch.mean(sent_a_out.last_hidden_state, dim=1)
+            sent_a_pooled = self.pooling_layer(sent_a, sent_a_out)
+            # sent_a_pooled = torch.mean(sent_a_out.last_hidden_state, dim=1)
         else:
             sent_a_pooled = sent_a_out.pooler_output
 
         sent_b_out = self.bert_layer(**sent_b)
         if self.pooling == "mean":
-            sent_b_pooled = torch.mean(sent_b_out.last_hidden_state, dim=1)
+            sent_b_pooled = self.pooling_layer(sent_b, sent_b_out)
+            # sent_b_pooled = torch.mean(sent_b_out.last_hidden_state, dim=1)
         else:
             sent_b_pooled = sent_b_out.pooler_output
 
