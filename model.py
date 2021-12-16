@@ -1,6 +1,16 @@
 import torch
 
-from transformers import BertModel, BertConfig
+from transformers import BertModel
+
+
+def pooling_layer(inputs, outputs):
+    token_embeddings = outputs[0]
+    attention_mask = inputs["attention_mask"]
+    input_mask_expanded = attention_mask.unsqueeze(-1).expand(token_embeddings.size()).float()
+    sum_embeddings = torch.sum(token_embeddings * input_mask_expanded, 1)
+    sum_mask = input_mask_expanded.sum(1)
+    pooled = sum_embeddings / sum_mask
+    return pooled
 
 
 class SentenceBert(torch.nn.Module):
@@ -15,22 +25,12 @@ class SentenceBert(torch.nn.Module):
             self.softmax = torch.nn.Softmax()
         self.double()
 
-    @staticmethod
-    def pooling_layer(inputs, outputs):
-        token_embeddings = outputs[0]
-        attention_mask = inputs["attention_mask"]
-        input_mask_expanded = attention_mask.unsqueeze(-1).expand(token_embeddings.size()).float()
-        sum_embeddings = torch.sum(token_embeddings * input_mask_expanded, 1)
-        sum_mask = input_mask_expanded.sum(1)
-        pooled = sum_embeddings / sum_mask
-        return pooled
-
     def forward(self, sent_a, sent_b):
         sent_a_out = self.bert_layer(**sent_a, return_dict=False)
-        sent_a_pooled = self.pooling_layer(sent_a, sent_a_out)
+        sent_a_pooled = pooling_layer(sent_a, sent_a_out)
 
         sent_b_out = self.bert_layer(**sent_b, return_dict=False)
-        sent_b_pooled = self.pooling_layer(sent_b, sent_b_out)
+        sent_b_pooled = pooling_layer(sent_b, sent_b_out)
 
         if self.objective == "cosine_similarity":
             return self.cos_sim(sent_a_pooled, sent_b_pooled)
@@ -50,14 +50,14 @@ class SentenceBertInference:
         self.bert_model = bert_model
 
     def predict(self, sentence):
-        sentence = self.tokenizer(
+        sentence_inputs = self.tokenizer(
             sentence,
             return_tensors="pt",
             padding="max_length",
             truncation=True,
-            max_length=32,
+            max_length=128,
         )
-        sentence = self.bert_model(**sentence)
-        sentence_embedding = torch.mean(sentence.last_hidden_state, dim=1)
+        sentence_outputs = self.bert_model(**sentence_inputs)
+        sentence_embedding = pooling_layer(sentence_inputs, sentence_outputs)
 
         return sentence_embedding
