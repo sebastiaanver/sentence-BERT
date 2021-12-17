@@ -24,7 +24,7 @@ tokenizer = load_tokenizer()
 
 # Results from experiments
 experiments = ["Classification task", "Regression task", "Combined task"]
-correlation = [50, 60, 70]
+correlation = [65.4, 58.4, 59.2]
 d = {"Experiment": experiments, "Pearson correlation": correlation}
 df = pd.DataFrame(data=d)
 df.set_index("Experiment", inplace=True)
@@ -171,6 +171,7 @@ st.title("Experiments 🧪")
 st.write(
     "We have trained sentence-BERT by fine-tuning the pre-trained BERT model an various tasks and compared performance below. For the combined task we first fine-tuned on the classifcation task before fine-tuning on the regression task."
 )
+st.write("The classification task achieves the best spearman correlation, where combining the tasks slightly increases the performance over the regression task.")
 st.table(df)
 
 st.title("Search engine 🔍")
