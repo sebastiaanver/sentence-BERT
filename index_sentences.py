@@ -36,8 +36,8 @@ def index_sentences():
     sentences = df["quote"].values
     vectors = np.vstack(np.ravel(np.array(df["vec"].values)))
 
-    np.save(f"{model_path}/sentences.npy", sentences)
-    np.save(f"{model_path}/vectors.npy", vectors)
+    np.save(f"data/{model_path}/sentences.npy", sentences)
+    np.save(f"data/{model_path}/vectors.npy", vectors)
 
 
 if __name__ == "__main__":
