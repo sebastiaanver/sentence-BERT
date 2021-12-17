@@ -27,7 +27,7 @@ def main():
 
     _, test_generator = load_data(device, tokenizer, objective="cosine_similarity")
 
-    model = SentenceBert(objective="regression", bert_model=bert_model)
+    model = SentenceBert(bert_model=bert_model)
     model.to(device)
 
     with torch.no_grad():
