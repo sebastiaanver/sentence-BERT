@@ -22,7 +22,7 @@ def main():
     elif args.model == "classification":
         hf_name = "sebastiaan/sentence-BERT-classification"
     elif args.model == "regression":
-        hf_name = "sebastiaan/sentence-BERT-classification"
+        hf_name = "sebastiaan/sentence-BERT-regression"
     bert_model = BertModel.from_pretrained(hf_name)
 
     _, test_generator = load_data(device, tokenizer, objective="cosine_similarity")
