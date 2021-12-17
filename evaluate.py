@@ -6,23 +6,31 @@ import argparse
 from scipy import stats
 from dataset import load_data
 from model import SentenceBert
-from transformers import BertTokenizer
+from transformers import BertTokenizer, BertModel
 
 
 def main():
     parser = argparse.ArgumentParser(description="Sentence BERT")
     parser.add_argument(
-        "--model_path", type=str, help="Model path.", default="/"
+        "--model", type=str, help="Model.", default="combined"
     )
     args = parser.parse_args()
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
     tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
-    _, test_generator = load_data(device, tokenizer)
-    with torch.no_grad():
-        model = SentenceBert()
-        model.load_state_dict(torch.load(args.model_path))
-        model.to(device)
+    if args.model == "combined":
+        hf_name = "sentence-BERT-combined"
+    elif args.model == "classification":
+        hf_name = "sentence-BERT-classification"
+    elif args.model == "regression":
+        hf_name = "sentence-BERT-classification"
+    bert_model = BertModel.from_pretrained(hf_name)
 
+    _, test_generator = load_data(device, tokenizer, objective=args.objective)
+
+    model = SentenceBert(objective="regression", bert_model=bert_model)
+    model.to(device)
+
+    with torch.no_grad():
         predictions = np.array([])
         labels = np.array([])
         for local_batch, local_labels in tqdm.tqdm(test_generator):
@@ -33,7 +41,6 @@ def main():
 
         r = stats.spearmanr(predictions, labels)
         print(f"Spearman correlation: {r.correlation}")
-        np.save("results.npy", np.array([r.correlation]))
 
 
 if __name__ == "__main__":

@@ -75,7 +75,6 @@ def main():
                         r = stats.spearmanr(predictions, labels)
                         print(f"Spearman correlation: {r.correlation}")
                     if args.objective == "classification":
-                        print(predictions.shape)
                         acc = accuracy_score(predictions, labels)
                         print(f"Accuracy of the model: {acc}")
 
@@ -94,7 +93,6 @@ def main():
             r = stats.spearmanr(predictions, labels)
             print(f"Spearman correlation: {r.correlation}")
         if args.objective == "classification":
-            print(predictions.shape)
             acc = accuracy_score(predictions, labels)
             print(f"Accuracy of the model: {acc}")
 
