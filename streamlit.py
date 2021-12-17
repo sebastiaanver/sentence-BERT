@@ -115,6 +115,31 @@ st.code(
 
 )
 st.write("Evaluation on STS Benchmark")
+st.write("The metric used to compare two sets of rankings is the Spearmean Correlation.")
+
+st.title("Classification Training Objective")
+st.write("Unfortunately, there is a very limited amount of available STS data. It might therefore be useful to "
+         "also introduce a different, but conceptually similar task, such as Natural Language Inference (NLI). "
+         "It is considerably easier to collect NLI data, which has resulted in some decent sized datasets of good "
+         "quality. For this task we will use SNLI dataset. We are still "
+         "interested in producing sentence embedding, and not solving the NLI task "
+         "itself. Hence, the model first produces a sentence embedding with the "
+         "Mean-Pooling-Strategy, and that it is this embedding that is used for the classification")
+
+image = Image.open('images/classification.png')
+st.image(image, caption='SBERT architecture with classification objective function, e.g., '
+                        'for fine-tuning on SNLI dataset. The two BERT networks have tied'
+                        ' weights (siamese network structure).', width=400)
+
+st.write("Evaluation on STS Benchmark")
+st.write("The metric used to compare two sets of rankings is the Spearmean Correlation")
+
+
+st.title("Combining both objectives")
+st.write("S-BERT claims that they get even greater performance by first training on NLI and afterwards tuning "
+         "towers the supervised STS dataset.")
+
+st.write("Evaluation on STS Benchmark")
 st.write("The metric used to compare two sets of rankings is the Spearmean Correlation")
 
 st.title('Experiments 🧪')
