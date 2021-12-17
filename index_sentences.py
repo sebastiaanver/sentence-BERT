@@ -3,6 +3,7 @@ from model import SentenceBertInference
 from transformers import BertModel, BertTokenizer
 
 import torch
+import tqdm
 import argparse
 import numpy as np
 
@@ -27,7 +28,10 @@ def index_sentences():
     df = dataset["train"].to_pandas()
     df["quote"].apply(lambda x: x.split(".")[0] + '."')
 
-    df["vec"] = df["quote"].apply(lambda x: model.predict(x).cpu().detach().numpy()[0])
+    sentence_embeddings = []
+    for quote in tqdm.tqdm(df["quote"]):
+        sentence_embeddings.append(model.predict(quote).cpu().detach().numpy()[0])
+    df["vec"] = sentence_embeddings
 
     sentences = df["quote"].values
     vectors = np.vstack(np.ravel(np.array(df["vec"].values)))
