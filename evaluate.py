@@ -25,7 +25,7 @@ def main():
         hf_name = "sebastiaan/sentence-BERT-classification"
     bert_model = BertModel.from_pretrained(hf_name)
 
-    _, test_generator = load_data(device, tokenizer, objective=args.objective)
+    _, test_generator = load_data(device, tokenizer, objective="cosine_similarity")
 
     model = SentenceBert(objective="regression", bert_model=bert_model)
     model.to(device)
