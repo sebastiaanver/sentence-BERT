@@ -18,11 +18,11 @@ def main():
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
     tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
     if args.model == "combined":
-        hf_name = "sentence-BERT-combined"
+        hf_name = "sebastiaan/sentence-BERT-combined"
     elif args.model == "classification":
-        hf_name = "sentence-BERT-classification"
+        hf_name = "sebastiaan/sentence-BERT-classification"
     elif args.model == "regression":
-        hf_name = "sentence-BERT-classification"
+        hf_name = "sebastiaan/sentence-BERT-classification"
     bert_model = BertModel.from_pretrained(hf_name)
 
     _, test_generator = load_data(device, tokenizer, objective=args.objective)
