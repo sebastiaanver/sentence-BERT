@@ -174,7 +174,7 @@ st.write(
 st.table(df)
 
 st.title("Search engine 🔍")
-st.write("For the ")
+st.write("For the search engine we indexed a quotes datasets, so you can find a quote related to some keywords. The queotes dataset is indexe for all models, so go ahead an try out our models!")
 with st.form(key="my_form"):
     model_to_use = st.selectbox("Select model to use:", experiments)
     query = st.text_input("Search query")
