@@ -6,7 +6,9 @@ from transformers import BertModel
 def pooling_layer(inputs, outputs):
     token_embeddings = outputs[0]
     attention_mask = inputs["attention_mask"]
-    input_mask_expanded = attention_mask.unsqueeze(-1).expand(token_embeddings.size()).float()
+    input_mask_expanded = (
+        attention_mask.unsqueeze(-1).expand(token_embeddings.size()).float()
+    )
     sum_embeddings = torch.sum(token_embeddings * input_mask_expanded, 1)
     sum_mask = input_mask_expanded.sum(1)
     pooled = sum_embeddings / sum_mask
@@ -16,7 +18,9 @@ def pooling_layer(inputs, outputs):
 class SentenceBert(torch.nn.Module):
     def __init__(self, objective="cosine_similarity", bert_model=None):
         super(SentenceBert, self).__init__()
-        self.bert_layer = bert_model if bert_model else BertModel.from_pretrained('bert-base-uncased')
+        self.bert_layer = (
+            bert_model if bert_model else BertModel.from_pretrained("bert-base-uncased")
+        )
         self.objective = objective
         if self.objective == "cosine_similarity":
             self.cos_sim = torch.nn.CosineSimilarity(dim=1, eps=1e-6)

@@ -17,9 +17,18 @@ def main():
         "--batch_size", type=int, help="Batch size for training.", default=16
     )
     parser.add_argument("--epochs", type=int, help="Number of train epochs.", default=4)
-    parser.add_argument("--objective", type=str, help="Model training objective.", default="cosine_similarity")
-    parser.add_argument("--push_to_hub", type=bool,
-                        help="If models should be uploaded to huggingface.", default=False)
+    parser.add_argument(
+        "--objective",
+        type=str,
+        help="Model training objective.",
+        default="cosine_similarity",
+    )
+    parser.add_argument(
+        "--push_to_hub",
+        type=bool,
+        help="If models should be uploaded to huggingface.",
+        default=False,
+    )
     args = parser.parse_args()
 
     if args.objective == "classification":
@@ -32,7 +41,9 @@ def main():
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
     tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
 
-    train_generator, test_generator = load_data(device, tokenizer, objective=args.objective)
+    train_generator, test_generator = load_data(
+        device, tokenizer, objective=args.objective
+    )
 
     model = SentenceBert(objective=args.objective)
     model.to(device)

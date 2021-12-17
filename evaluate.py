@@ -11,9 +11,7 @@ from transformers import BertTokenizer, BertModel
 
 def main():
     parser = argparse.ArgumentParser(description="Sentence BERT")
-    parser.add_argument(
-        "--model", type=str, help="Model.", default="combined"
-    )
+    parser.add_argument("--model", type=str, help="Model.", default="combined")
     args = parser.parse_args()
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
     tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")

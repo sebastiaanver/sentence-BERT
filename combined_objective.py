@@ -13,21 +13,30 @@ from model import SentenceBert
 
 def main():
     parser = argparse.ArgumentParser(description="Sentence BERT")
-    parser.add_argument("--push_to_hub", type=bool, help="If models should be uploaded to huggingface.", default=False)
+    parser.add_argument(
+        "--push_to_hub",
+        type=bool,
+        help="If models should be uploaded to huggingface.",
+        default=False,
+    )
     args = parser.parse_args()
 
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
     tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
 
     # Fine-tune on the classification task
-    train_generator, test_generator = load_data(device, tokenizer, objective="classification")
+    train_generator, test_generator = load_data(
+        device, tokenizer, objective="classification"
+    )
 
     model = SentenceBert(objective="classification")
     model.to(device)
 
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=2e-5)
-    scheduler = torch.optim.lr_scheduler.LinearLR(optimizer, start_factor=1e-8, total_iters=500)
+    scheduler = torch.optim.lr_scheduler.LinearLR(
+        optimizer, start_factor=1e-8, total_iters=500
+    )
     step = 0
     for epoch in range(1):
         for x_batch, y_batch in train_generator:
@@ -61,12 +70,16 @@ def main():
                     print(f"Accuracy of the model: {acc}")
 
     # Fine-tune on the regression task
-    train_generator, test_generator = load_data(device, tokenizer, objective="cosine_similarity")
+    train_generator, test_generator = load_data(
+        device, tokenizer, objective="cosine_similarity"
+    )
     model = SentenceBert(objective="cosine_similarity", bert_model=model.bert_layer)
 
     criterion = torch.nn.MSELoss(reduction="mean")
     optimizer = torch.optim.Adam(model.parameters(), lr=2e-5)
-    scheduler = torch.optim.lr_scheduler.LinearLR(optimizer, start_factor=1e-8, total_iters=150)
+    scheduler = torch.optim.lr_scheduler.LinearLR(
+        optimizer, start_factor=1e-8, total_iters=150
+    )
     step = 0
     for epoch in range(4):
         for x_batch, y_batch in train_generator:

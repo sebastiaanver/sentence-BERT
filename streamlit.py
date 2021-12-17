@@ -16,7 +16,8 @@ tree = spatial.KDTree(data=vectors)
 # Init model
 @st.cache
 def load_tokenizer():
-    return BertTokenizer.from_pretrained('bert-base-uncased')
+    return BertTokenizer.from_pretrained("bert-base-uncased")
+
 
 tokenizer = load_tokenizer()
 
@@ -24,21 +25,25 @@ tokenizer = load_tokenizer()
 # Results from experiments
 experiments = ["Classification task", "Regression task", "Combined task"]
 correlation = [50, 60, 70]
-d = {'Experiment': experiments, 'Pearson correlation': correlation}
+d = {"Experiment": experiments, "Pearson correlation": correlation}
 df = pd.DataFrame(data=d)
-df.set_index('Experiment', inplace=True)
+df.set_index("Experiment", inplace=True)
 
-st.title('Sentence BERT')
-st.title('Introduction')
-st.write("The goal of this assignment is to train a network to produce sentence embedding, by implementing the proposed method of the Sentence-BERT (S-BERT) paper.")
+st.title("Sentence BERT")
+st.title("Introduction")
+st.write(
+    "The goal of this assignment is to train a network to produce sentence embedding, by implementing the proposed method of the Sentence-BERT (S-BERT) paper."
+)
 
 st.title("Semantic Sentence Embedding")
-st.write("As with most embedding system, the idea is to represent objects as a high-dimensional vectors, so that the "
-         "distance correlates to a property in which we’re interested. In this case, we’re going to represent sentences "
-         "so that the distance of the vector space indicates semantic similarity. Hence, sentences who have a similar "
-         "meaning should end up close to each other, and sentences who are dissimilar in their meaning should be further apart")
+st.write(
+    "As with most embedding system, the idea is to represent objects as a high-dimensional vectors, so that the "
+    "distance correlates to a property in which we’re interested. In this case, we’re going to represent sentences "
+    "so that the distance of the vector space indicates semantic similarity. Hence, sentences who have a similar "
+    "meaning should end up close to each other, and sentences who are dissimilar in their meaning should be further apart"
+)
 st.code(
-"""
+    """
 tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
 
 class Dataset(torch.utils.data.Dataset):
@@ -60,22 +65,33 @@ class Dataset(torch.utils.data.Dataset):
         self.labels = df[col_names[2]].values
         self.device = device
         
-""", language = 'python')
+""",
+    language="python",
+)
 
 st.title("Regression Training Objective")
-st.write("The regression loss functions, takes into account the cosine-similarity between two sentence embedding. "
-         "Hence, allowing us to directly tune the distance of the generated sentence embedding. "
-         "Since cosine-similarity is always in the range [−1, 1], we can set the most similar sentences to have a "
-         "similarity of 1, and the most dissimilar to have −1.")
+st.write(
+    "The regression loss functions, takes into account the cosine-similarity between two sentence embedding. "
+    "Hence, allowing us to directly tune the distance of the generated sentence embedding. "
+    "Since cosine-similarity is always in the range [−1, 1], we can set the most similar sentences to have a "
+    "similarity of 1, and the most dissimilar to have −1."
+)
 
 
-image = Image.open('images/regression.png')
-st.image(image, caption='SBERT architecture at inference, for example, to compute similarity scores. '
-                        'This architecture is also used with the regression objective function', width=400)
+image = Image.open("images/regression.png")
+st.image(
+    image,
+    caption="SBERT architecture at inference, for example, to compute similarity scores. "
+    "This architecture is also used with the regression objective function",
+    width=400,
+)
 
 st.write("We first need to scale the labels")
-st.code("""train_df["scaled_score"] = train_df["score"].apply(lambda x: (float(x) / 2.5) - 1)
-test_df["scaled_score"] = test_df["score"].apply(lambda x: (float(x) / 2.5) - 1)""", language='python')
+st.code(
+    """train_df["scaled_score"] = train_df["score"].apply(lambda x: (float(x) / 2.5) - 1)
+test_df["scaled_score"] = test_df["score"].apply(lambda x: (float(x) / 2.5) - 1)""",
+    language="python",
+)
 
 st.write("If we implement the architectute, we can build SentenceBert")
 st.code(
@@ -110,62 +126,76 @@ st.code(
             print("Objective not valid")
         return None
     
-    """, language='python'
-
-
+    """,
+    language="python",
 )
 st.write("Evaluation on STS Benchmark")
-st.write("The metric used to compare two sets of rankings is the Spearmean Correlation.")
+st.write(
+    "The metric used to compare two sets of rankings is the Spearmean Correlation."
+)
 
 st.title("Classification Training Objective")
-st.write("Unfortunately, there is a very limited amount of available STS data. It might therefore be useful to "
-         "also introduce a different, but conceptually similar task, such as Natural Language Inference (NLI). "
-         "It is considerably easier to collect NLI data, which has resulted in some decent sized datasets of good "
-         "quality. For this task we will use SNLI dataset. We are still "
-         "interested in producing sentence embedding, and not solving the NLI task "
-         "itself. Hence, the model first produces a sentence embedding with the "
-         "Mean-Pooling-Strategy, and that it is this embedding that is used for the classification")
+st.write(
+    "Unfortunately, there is a very limited amount of available STS data. It might therefore be useful to "
+    "also introduce a different, but conceptually similar task, such as Natural Language Inference (NLI). "
+    "It is considerably easier to collect NLI data, which has resulted in some decent sized datasets of good "
+    "quality. For this task we will use SNLI dataset. We are still "
+    "interested in producing sentence embedding, and not solving the NLI task "
+    "itself. Hence, the model first produces a sentence embedding with the "
+    "Mean-Pooling-Strategy, and that it is this embedding that is used for the classification"
+)
 
-image = Image.open('images/classification.png')
-st.image(image, caption='SBERT architecture with classification objective function, e.g., '
-                        'for fine-tuning on SNLI dataset. The two BERT networks have tied'
-                        ' weights (siamese network structure).', width=400)
+image = Image.open("images/classification.png")
+st.image(
+    image,
+    caption="SBERT architecture with classification objective function, e.g., "
+    "for fine-tuning on SNLI dataset. The two BERT networks have tied"
+    " weights (siamese network structure).",
+    width=400,
+)
 
 st.write("Evaluation on STS Benchmark")
 st.write("The metric used to compare two sets of rankings is the Spearmean Correlation")
 
 
 st.title("Combining both objectives")
-st.write("S-BERT claims that they get even greater performance by first training on NLI and afterwards tuning "
-         "towers the supervised STS dataset.")
+st.write(
+    "S-BERT claims that they get even greater performance by first training on NLI and afterwards tuning "
+    "towards the supervised STS dataset."
+)
 
 st.write("Evaluation on STS Benchmark")
 st.write("The metric used to compare two sets of rankings is the Spearmean Correlation")
 
-st.title('Experiments 🧪')
-st.write("We have trained sentence-BERT by fine-tuning the pre-trained BERT model an various tasks and compared performance below. For the combined task we first fine-tuned on the classifcation task before fine-tuning on the regression task.")
+st.title("Experiments 🧪")
+st.write(
+    "We have trained sentence-BERT by fine-tuning the pre-trained BERT model an various tasks and compared performance below. For the combined task we first fine-tuned on the classifcation task before fine-tuning on the regression task."
+)
 st.table(df)
 
-st.title('Search engine 🔍')
-
-with st.form(key='my_form'):
-    model_to_use = st.selectbox('Select model to use:', experiments)
-    query = st.text_input('Search query')
+st.title("Search engine 🔍")
+st.write("For the ")
+with st.form(key="my_form"):
+    model_to_use = st.selectbox("Select model to use:", experiments)
+    query = st.text_input("Search query")
     k = st.slider("Number of results (k)", min_value=1, max_value=20, value=4)
-    submit_button = st.form_submit_button(label='Submit')
-    st.warning('Note: the model will be loaded from huggingface and might take a few minutes.')
+    submit_button = st.form_submit_button(label="Submit")
+    st.warning(
+        "Note: the model will be loaded from huggingface and might take a few minutes."
+    )
 
 
 @st.cache
 def load_model(tokenizer, task_name):
     if task_name == "Classification task":
-        bert_model = BertModel.from_pretrained('sebastiaan/sentence-BERT-classification')
+        bert_model = BertModel.from_pretrained(
+            "sebastiaan/sentence-BERT-classification"
+        )
     elif task_name == "Regression task":
-        bert_model = BertModel.from_pretrained('sebastiaan/sentence-BERT-regression')
+        bert_model = BertModel.from_pretrained("sebastiaan/sentence-BERT-regression")
     else:
-        bert_model = BertModel.from_pretrained('sebastiaan/sentence-BERT-combined')
+        bert_model = BertModel.from_pretrained("sebastiaan/sentence-BERT-combined")
     return SentenceBertInference(tokenizer, bert_model)
-
 
 
 model = load_model(tokenizer, model_to_use)
@@ -176,5 +206,3 @@ st.markdown(f"Results for model: **{model_to_use}** and query: **'{query}'**")
 
 
 st.text("\n".join([sentences[i] for i in res[1][0]]))
-
-
