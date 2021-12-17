@@ -16,7 +16,7 @@ def index_sentences():
     model_path = "combined"
     if args.model == "sentence-BERT-regression":
         model_path = "regression"
-    elif args.model == "sentence-BERT-classifcation":
+    elif args.model == "sentence-BERT-classification":
         model_path = "classification"
 
     tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
